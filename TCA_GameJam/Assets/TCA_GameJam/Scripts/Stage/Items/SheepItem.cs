@@ -17,6 +17,12 @@ namespace TCA_GameJam.Scripts.Stage
             _gameManager = GameManager.Instance;
         }
 
+        private void OnEnable()
+        {
+            // プールから出し直したときに、また当たれるようにする
+            _isHit = false;
+        }
+
         public void Hit(SheepHerd herd)
         {
             if (_isHit || _gameManager.CurrentPhase != GamePhase.Collect)
@@ -26,7 +32,7 @@ namespace TCA_GameJam.Scripts.Stage
 
             _isHit = true;
             herd.AddFollower();
-            Destroy(gameObject);
+            gameObject.SetActive(false);    // 非表示にすると ObjectSpawner がプールに返す
         }
     }
 }

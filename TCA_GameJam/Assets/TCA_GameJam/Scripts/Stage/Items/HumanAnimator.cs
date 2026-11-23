@@ -25,6 +25,7 @@ namespace TCA_GameJam.Scripts.Stage
         private GameManager _gameManager;
         private HumanItem _humanItem;
         private Vector3 _baseLocalPosition;
+        private Quaternion _baseLocalRotation;
         private Tween _shakeTween;
         private bool _canShake;
 
@@ -41,27 +42,32 @@ namespace TCA_GameJam.Scripts.Stage
                 _visual = transform;
             }
             _baseLocalPosition = _visual.localPosition;
+            _baseLocalRotation = _visual.localRotation;
         }
 
         private void OnEnable()
         {
             _gameManager.OnPhaseChanged += HandlePhaseChanged;
             _humanItem.OnKnockedDown += HandleKnockedDown;
+
+            // プールから出し直したときは、倒れた向きを戻してから始める
+            _visual.localRotation = _baseLocalRotation;
+
+            // 人間はなぎ倒しフェーズに入ってから出てくるので、出てきた時点で震え始める
+            if (_gameManager.CurrentPhase == GamePhase.Bowling)
+            {
+                StartShake();
+            }
         }
 
         private void OnDisable()
         {
             _gameManager.OnPhaseChanged -= HandlePhaseChanged;
             _humanItem.OnKnockedDown -= HandleKnockedDown;
-        }
 
-        private void Start()
-        {
-            // 人間はなぎ倒しフェーズに入ってから出てくるので、出てきた時点で震え始める
-            if (_gameManager.CurrentPhase == GamePhase.Bowling)
-            {
-                StartShake();
-            }
+            // プールに戻るときは、途中の震え・倒れる動きを止める
+            StopShake();
+            _visual.DOKill();
         }
 
         private void OnDestroy()

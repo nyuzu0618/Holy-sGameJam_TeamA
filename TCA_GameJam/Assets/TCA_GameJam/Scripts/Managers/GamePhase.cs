@@ -7,6 +7,7 @@ namespace TCA_GameJam.Scripts.Managers
     {
         Collect,    // 仲間の羊を集めるフェーズ(後ろから見る)
         Bowling,    // 毛玉で人類をなぎ倒すフェーズ(横から見る)
+        Clear,
         GameOver,
     }
 }

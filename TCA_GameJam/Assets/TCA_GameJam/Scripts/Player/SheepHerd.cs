@@ -17,19 +17,22 @@ namespace TCA_GameJam.Scripts.Player
         [SerializeField] private GameObject _followerPrefab;        // 後ろについてくる仲間の見た目(Colliderは付けない)
         [SerializeField] private Transform _woolBall;               // 合体後の毛玉(半径0.5の球を想定)
         [SerializeField] private int _lostCountOnWolf = 1;          // 狼に当たったときに減る仲間の数
-        [SerializeField] private int _followersPerRow = 3;          // 仲間を横に何匹ずつ並べるか
         [SerializeField] private float _followerSpacing = 1.2f;
         [SerializeField] private float _woolBallBaseScale = 1.0f;
         [SerializeField] private float _woolBallScalePerSheep = 0.1f;
 
+        // 後ろに見た目を出す仲間の数(これより多く集めても見た目は増えず、数だけ増える)
+        private const int FOLLOWER_POOL_SIZE = 14;
+
         private GameManager _gameManager;
-        private readonly List<GameObject> _followers = new List<GameObject>();
+        private readonly List<GameObject> _followers = new List<GameObject>();     // 最初に作っておく仲間の見た目(FOLLOWER_POOL_SIZE 個)
+        private int _followerCount;
         private int _mergedCount;
         private bool _isMerged;
 
         public event Action<IReadOnlyList<Vector3>> OnMerged;  // 合体した(引数は仲間がいた localPosition)
 
-        public int FollowerCount => _followers.Count;
+        public int FollowerCount => _followerCount;
         public int MergedCount => _mergedCount;
         public bool IsMerged => _isMerged;
 
@@ -38,6 +41,7 @@ namespace TCA_GameJam.Scripts.Player
             _gameManager = GameManager.Instance;
             GetComponent<Rigidbody>().isKinematic = true;
             _woolBall.gameObject.SetActive(false);
+            CreateFollowers();
         }
 
         private void OnEnable()
@@ -83,13 +87,16 @@ namespace TCA_GameJam.Scripts.Player
         /// </summary>
         public void Merge()
         {
-            _mergedCount = _followers.Count;
+            _mergedCount = _followerCount;
 
-            // 消す前に仲間がいた場所を覚えておく(SheepMergeAnimator が集まる動きに使う)
+            // 消す前に見えている仲間がいた場所を覚えておく(SheepMergeAnimator が集まる動きに使う)
             List<Vector3> followerLocalPositions = new List<Vector3>();
             foreach (GameObject follower in _followers)
             {
-                followerLocalPositions.Add(follower.transform.localPosition);
+                if (follower.activeSelf)
+                {
+                    followerLocalPositions.Add(follower.transform.localPosition);
+                }
             }
             ClearFollowers();
 
@@ -135,18 +142,8 @@ namespace TCA_GameJam.Scripts.Player
         /// </summary>
         public void AddFollower()
         {
-            int index = _followers.Count;
-            int row = index / _followersPerRow;
-            int column = index % _followersPerRow;
-
-            Vector3 localPos = new Vector3(
-                (column - (_followersPerRow - 1) * 0.5f) * _followerSpacing,
-                0.0f,
-                -(row + 1) * _followerSpacing);
-
-            GameObject follower = Instantiate(_followerPrefab, transform);
-            follower.transform.localPosition = localPos;
-            _followers.Add(follower);
+            _followerCount++;
+            UpdateFollowerVisuals();
         }
 
         /// <summary>
@@ -155,28 +152,68 @@ namespace TCA_GameJam.Scripts.Player
         public void HitWolf()
         {
             // 仲間0で狼に当たったらゲームオーバー
-            if (_followers.Count == 0)
+            if (_followerCount == 0)
             {
                 _gameManager.EndGame();
                 return;
             }
 
-            int lostCount = Mathf.Min(_lostCountOnWolf, _followers.Count);
-            for (int i = 0; i < lostCount; i++)
+            int lostCount = Mathf.Min(_lostCountOnWolf, _followerCount);
+            _followerCount -= lostCount;
+            UpdateFollowerVisuals();
+        }
+
+        /// <summary>
+        /// 仲間の見た目を最初に全部作って、並ぶ位置に置いて非表示にしておく
+        /// 自分を先頭のピンにして、後ろに 2匹→3匹→4匹 とボーリングのピンのような三角形に並べる
+        /// </summary>
+        private void CreateFollowers()
+        {
+            int totalCount = FOLLOWER_POOL_SIZE + 1;   // 先頭の自分も入れた数
+            int row = 1;                               // 0列目は自分なので1列目から
+            int rowStartIndex = 1;                     // 今の列の先頭が何匹目か(自分が0匹目)
+
+            for (int i = 0; i < FOLLOWER_POOL_SIZE; i++)
             {
-                int lastIndex = _followers.Count - 1;
-                Destroy(_followers[lastIndex]);
-                _followers.RemoveAt(lastIndex);
+                int index = i + 1;
+
+                // 今の列(row 列目は row + 1 匹)が埋まったら次の列へ
+                if (index >= rowStartIndex + row + 1)
+                {
+                    rowStartIndex += row + 1;
+                    row++;
+                }
+
+                int column = index - rowStartIndex;
+                int rowSize = Mathf.Min(row + 1, totalCount - rowStartIndex);
+
+                Vector3 localPos = new Vector3(
+                    (column - (rowSize - 1) * 0.5f) * _followerSpacing,
+                    _followerPrefab.transform.position.y,
+                    -row * _followerSpacing);
+
+                GameObject follower = Instantiate(_followerPrefab, transform);
+                follower.transform.localPosition = localPos;
+                follower.SetActive(false);
+                _followers.Add(follower);
+            }
+        }
+
+        /// <summary>
+        /// 仲間の数に合わせて、前から順に見た目を出す(FOLLOWER_POOL_SIZE より多い分は出さない)
+        /// </summary>
+        private void UpdateFollowerVisuals()
+        {
+            for (int i = 0; i < _followers.Count; i++)
+            {
+                _followers[i].SetActive(i < _followerCount);
             }
         }
 
         private void ClearFollowers()
         {
-            foreach (GameObject follower in _followers)
-            {
-                Destroy(follower);
-            }
-            _followers.Clear();
+            _followerCount = 0;
+            UpdateFollowerVisuals();
         }
     }
 }

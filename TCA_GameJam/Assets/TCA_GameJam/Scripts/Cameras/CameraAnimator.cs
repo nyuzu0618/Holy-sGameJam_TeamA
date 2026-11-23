@@ -57,8 +57,8 @@ namespace TCA_GameJam.Scripts.Cameras
 
         private void HandlePhaseChanged(GamePhase phase)
         {
-            // ゲームオーバーのときはそのままのカメラにしておく
-            if (phase == GamePhase.GameOver)
+            // ゲームオーバー・クリアのときはそのままのカメラにしておく
+            if (phase == GamePhase.GameOver || phase == GamePhase.Clear)
             {
                 return;
             }

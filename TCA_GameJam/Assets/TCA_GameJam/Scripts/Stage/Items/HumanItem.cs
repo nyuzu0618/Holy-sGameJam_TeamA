@@ -24,6 +24,13 @@ namespace TCA_GameJam.Scripts.Stage
             _gameManager = GameManager.Instance;
         }
 
+        private void OnDisable()
+        {
+            // プールに戻ったら、次に出したとき立っている状態から始まるように戻す
+            CancelInvoke(nameof(Hide));
+            _isKnockedDown = false;
+        }
+
         public void Hit(SheepHerd herd)
         {
             if (_isKnockedDown || _gameManager.CurrentPhase != GamePhase.Bowling)
@@ -42,7 +49,15 @@ namespace TCA_GameJam.Scripts.Stage
         {
             _isKnockedDown = true;
             OnKnockedDown?.Invoke();
-            Destroy(gameObject, _knockedLifeTime);
+            Invoke(nameof(Hide), _knockedLifeTime);
+        }
+
+        /// <summary>
+        /// 非表示にすると ObjectSpawner がプールに返す
+        /// </summary>
+        private void Hide()
+        {
+            gameObject.SetActive(false);
         }
     }
 }

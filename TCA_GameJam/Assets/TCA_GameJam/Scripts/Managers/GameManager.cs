@@ -10,19 +10,18 @@ namespace TCA_GameJam.Scripts.Managers
     public class GameManager : MonoBehaviour
     {
         [SerializeField] private float _scrollSpeed = 10.0f;        // 地面が流れる速さ
-        [SerializeField] private float _collectDistance = 200.0f;   // この距離を走ったら合体する
+        [SerializeField] private float _collectTime = 60.0f;        // 集めるフェーズの秒数(この時間が経ったら合体する)
 
         private GamePhase _currentPhase;
-        private float _distance;
-        private int _score;
+        private float _collectTimer;
+        public int _score { get; private set; }
 
         public event Action<GamePhase> OnPhaseChanged;
         public event Action<int> OnScoreChanged;
 
         public GamePhase CurrentPhase => _currentPhase;
         public int Score => _score;
-        public float Distance => _distance;
-        public bool IsPlaying => _currentPhase != GamePhase.GameOver;
+        public bool IsPlaying => _currentPhase == GamePhase.Collect || _currentPhase == GamePhase.Bowling;
         public float ScrollSpeed => IsPlaying ? _scrollSpeed : 0.0f;
 
         public static GameManager Instance { get; private set; }
@@ -57,8 +56,8 @@ namespace TCA_GameJam.Scripts.Managers
                 return;
             }
 
-            _distance += _scrollSpeed * Time.deltaTime;
-            if (_distance >= _collectDistance)
+            _collectTimer += Time.deltaTime;
+            if (_collectTimer >= _collectTime)
             {
                 StartBowlingPhase();
             }
@@ -71,7 +70,7 @@ namespace TCA_GameJam.Scripts.Managers
         /// </summary>
         public void StartCollectPhase()
         {
-            _distance = 0.0f;
+            _collectTimer = 0.0f;
             ChangePhase(GamePhase.Collect);
         }
 
@@ -84,7 +83,7 @@ namespace TCA_GameJam.Scripts.Managers
         }
 
         /// <summary>
-        /// なぎ倒しフェーズを終えて、集めるフェーズに戻る
+        /// なぎ倒しフェーズを終えて、クリアにする(フェーズは1回で終わり)
         /// </summary>
         public void FinishBowling()
         {
@@ -93,7 +92,7 @@ namespace TCA_GameJam.Scripts.Managers
                 return;
             }
 
-            StartCollectPhase();
+            ChangePhase(GamePhase.Clear);
         }
 
         public void AddScore(int value)
