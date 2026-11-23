@@ -114,14 +114,26 @@ namespace OutGame
             SetVisibleImmediate(!hideOnStart);
         }
 
+        private void OnDisable()
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnPhaseChanged -= Show;
+                Debug.LogWarning("購読解除完了");
+            }
+        }
+
         /// <summary>値をセットしてリザルトを表示する</summary>
         public void Show(GamePhase phase)
         {
-            if(phase != GamePhase.Clear) return;
+            if (phase == GamePhase.Clear ||
+            phase == GamePhase.GameOver)
+            {
+                Value1 = _sheepHerd.FollowerCount;
+                Value2 = GameManager.Instance.Score;
+                Show();
 
-            Value1 = _sheepHerd.FollowerCount;
-            Value2 = GameManager.Instance.Score;
-            Show();
+            }
         }
 
         /// <summary>今の値のままリザルトを表示する</summary>

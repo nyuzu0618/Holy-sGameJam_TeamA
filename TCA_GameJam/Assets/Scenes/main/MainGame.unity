@@ -340,7 +340,7 @@ PrefabInstance:
       objectReference: {fileID: 5462228715847233088, guid: d66cd4f6784e6774bbc998ae3b986ae3, type: 3}
     - target: {fileID: 461128074607338331, guid: b9378d5edd3269842855e63cfc171913, type: 3}
       propertyPath: _woolBallScalePerSheep
-      value: 0.2
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 797700045556212152, guid: b9378d5edd3269842855e63cfc171913, type: 3}
       propertyPath: m_Radius
