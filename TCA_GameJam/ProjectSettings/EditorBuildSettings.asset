@@ -11,12 +11,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/main/MainGame.unity
     guid: bdb533e9c780435408077851d7f700c9
-  - enabled: 1
-    path: Assets/Holy/MainGame.unity
-    guid: 116fa25e732ed48489a1103944aa2f89
-  - enabled: 1
-    path: Assets/Holy/MainGameTest.unity
-    guid: 93fc9d1fdd5404e45ae5f8810817dc89
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

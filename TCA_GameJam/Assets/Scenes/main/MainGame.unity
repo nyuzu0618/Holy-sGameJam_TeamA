@@ -305,6 +305,10 @@ PrefabInstance:
       propertyPath: _sheepHerd
       value: 
       objectReference: {fileID: 342195103}
+    - target: {fileID: 6154844943923661499, guid: 892987b6f3041c74d99292db9ad14cff, type: 3}
+      propertyPath: value2Item.iconSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8d3ed6faffb162640b91f3c92b54de3d, type: 3}
     - target: {fileID: 8082609734934287894, guid: 892987b6f3041c74d99292db9ad14cff, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -397,6 +401,22 @@ PrefabInstance:
     - target: {fileID: 5224859748380501600, guid: b9378d5edd3269842855e63cfc171913, type: 3}
       propertyPath: m_LocalPosition.z
       value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 6009813966441342162, guid: b9378d5edd3269842855e63cfc171913, type: 3}
+      propertyPath: m_Height
+      value: 1.6811731
+      objectReference: {fileID: 0}
+    - target: {fileID: 6009813966441342162, guid: b9378d5edd3269842855e63cfc171913, type: 3}
+      propertyPath: m_Radius
+      value: 0.71801007
+      objectReference: {fileID: 0}
+    - target: {fileID: 6009813966441342162, guid: b9378d5edd3269842855e63cfc171913, type: 3}
+      propertyPath: m_Center.y
+      value: 0.7269819
+      objectReference: {fileID: 0}
+    - target: {fileID: 6009813966441342162, guid: b9378d5edd3269842855e63cfc171913, type: 3}
+      propertyPath: m_Center.z
+      value: 0.39801002
       objectReference: {fileID: 0}
     - target: {fileID: 6589919166003330239, guid: b9378d5edd3269842855e63cfc171913, type: 3}
       propertyPath: m_LocalPosition.x
@@ -663,7 +683,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TCA_GameJam.Scripts.Managers.GameManager
   _scrollSpeed: 10
-  _collectTime: 10
+  _collectTime: 60
 --- !u!4 &1715637085
 Transform:
   m_ObjectHideFlags: 0
