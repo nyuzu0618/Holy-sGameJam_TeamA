@@ -20,11 +20,13 @@ namespace TCA_GameJam.Scripts.Stage
         [SerializeField] private float _despawnZ = -10.0f;
         [SerializeField] private float _humanStartZ = 30.0f;
         [SerializeField] private float _humanSpacing = 1.5f;
+        [SerializeField] private float _finishWaitTime = 1.5f;      // 最後の人間を倒してから集めるフェーズに戻るまでの秒数
 
         private GameManager _gameManager;
         private readonly List<GameObject> _spawnedObjects = new List<GameObject>();
         private readonly List<HumanItem> _humans = new List<HumanItem>();     // まだ倒されていない人間
         private float _spawnTimer;
+        private float _finishTimer;
 
         private void Awake()
         {
@@ -57,8 +59,12 @@ namespace TCA_GameJam.Scripts.Stage
             }
             else if (_gameManager.CurrentPhase == GamePhase.Bowling && _humans.Count == 0)
             {
-                // 人間が全員倒れたか後ろに抜けたら終わる(0人のときもここで終わる)
-                _gameManager.FinishBowling();
+                // 人間が全員倒れたか後ろに抜けたら、倒れる動きを見せるため少し待ってから終わる(0人のときもここで終わる)
+                _finishTimer += Time.deltaTime;
+                if (_finishTimer >= _finishWaitTime)
+                {
+                    _gameManager.FinishBowling();
+                }
             }
         }
 
@@ -90,6 +96,7 @@ namespace TCA_GameJam.Scripts.Stage
             {
                 ClearAll();
                 _spawnTimer = 0.0f;
+                _finishTimer = 0.0f;
             }
         }
 
@@ -108,7 +115,7 @@ namespace TCA_GameJam.Scripts.Stage
         }
 
         /// <summary>
-        /// 倒された人間・消えた人間を数から外す。倒された人間は吹っ飛ぶので流すのもやめる
+        /// 倒された人間・消えた人間を数から外す(倒された人間も地面と一緒に流し続ける)
         /// </summary>
         private void RemoveFinishedHumans()
         {
@@ -122,7 +129,6 @@ namespace TCA_GameJam.Scripts.Stage
                 else if (human.IsKnockedDown)
                 {
                     _humans.RemoveAt(i);
-                    _spawnedObjects.Remove(human.gameObject);
                 }
             }
         }

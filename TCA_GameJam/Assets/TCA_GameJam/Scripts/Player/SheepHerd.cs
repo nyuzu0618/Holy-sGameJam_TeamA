@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TCA_GameJam.Scripts.Managers;
 using TCA_GameJam.Scripts.Stage;
@@ -25,6 +26,8 @@ namespace TCA_GameJam.Scripts.Player
         private readonly List<GameObject> _followers = new List<GameObject>();
         private int _mergedCount;
         private bool _isMerged;
+
+        public event Action<IReadOnlyList<Vector3>> OnMerged;  // 合体した(引数は仲間がいた localPosition)
 
         public int FollowerCount => _followers.Count;
         public int MergedCount => _mergedCount;
@@ -81,6 +84,13 @@ namespace TCA_GameJam.Scripts.Player
         public void Merge()
         {
             _mergedCount = _followers.Count;
+
+            // 消す前に仲間がいた場所を覚えておく(SheepMergeAnimator が集まる動きに使う)
+            List<Vector3> followerLocalPositions = new List<Vector3>();
+            foreach (GameObject follower in _followers)
+            {
+                followerLocalPositions.Add(follower.transform.localPosition);
+            }
             ClearFollowers();
 
             float scale = _woolBallBaseScale + _woolBallScalePerSheep * _mergedCount;
@@ -88,6 +98,8 @@ namespace TCA_GameJam.Scripts.Player
             _woolBall.gameObject.SetActive(true);
             _sheepModel.SetActive(false);
             _isMerged = true;
+
+            OnMerged?.Invoke(followerLocalPositions);
         }
 
         /// <summary>
