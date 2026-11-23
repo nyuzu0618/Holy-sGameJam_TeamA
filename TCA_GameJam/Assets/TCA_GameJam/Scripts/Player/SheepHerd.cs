@@ -212,7 +212,6 @@ namespace TCA_GameJam.Scripts.Player
 
         private void ClearFollowers()
         {
-            _followerCount = 0;
             UpdateFollowerVisuals();
         }
     }
